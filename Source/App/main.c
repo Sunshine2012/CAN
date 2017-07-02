@@ -28,7 +28,7 @@ void GPIO_Configuration(void)
   	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   	GPIO_Init(GPIOE, &GPIO_InitStructure);
     
-    
+#if 0
   	/* Configure CAN pin: RX */
   	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
@@ -40,6 +40,18 @@ void GPIO_Configuration(void)
   	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	GPIO_PinRemapConfig(GPIO_Remap2_CAN1, ENABLE );	   //重影射CAN IO脚到 PD0，PD1
+#endif
+  	/* Configure CAN pin: RX */
+  	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+  	GPIO_Init(GPIOA, &GPIO_InitStructure);
+  
+  	/* Configure CAN pin: TX */
+  	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	//GPIO_PinRemapConfig(GPIO_Remap2_CAN1, ENABLE );	   //重影射CAN IO脚到 PD0，PD1
 }
 
 //系统中断管理
@@ -59,7 +71,7 @@ void NVIC_Configuration(void)
 	#endif
 
 	/* enabling interrupt */
-  	NVIC_InitStructure.NVIC_IRQChannel=CAN1_RX0_IRQn;
+  	NVIC_InitStructure.NVIC_IRQChannel=USB_LP_CAN1_RX0_IRQn;
   	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -373,7 +385,7 @@ void CAN1_RX0_IRQHandler(void)
      && (RxMessage.DLC ==2 ) && ((RxMessage.Data[1] | RxMessage.Data[0]<<8) == 0xDECA))
     {
         ret = 1; 
-        GPIO_ResetBits (GPIOE, GPIO_Pin_2);
+        GPIO_ResetBits (GPIOC, GPIO_Pin_1);
     }
     else
     {

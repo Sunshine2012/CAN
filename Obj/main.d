@@ -1,7 +1,7 @@
 ..\obj\main.o: ..\Source\App\main.c
 ..\obj\main.o: ..\Source\CMSIS\Core\CM3\stm32f10x.h
 ..\obj\main.o: ..\Source\CMSIS\Core\CM3\core_cm3.h
-..\obj\main.o: d:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+..\obj\main.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
 ..\obj\main.o: ..\Source\CMSIS\Core\CM3\system_stm32f10x.h
 ..\obj\main.o: ..\Source\App\stm32f10x_conf.h
 ..\obj\main.o: ..\Source\STM32F10x_StdPeriph_Driver\inc\stm32f10x_adc.h
