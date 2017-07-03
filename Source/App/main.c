@@ -27,47 +27,60 @@ void GPIO_Configuration(void)
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   	GPIO_Init(GPIOE, &GPIO_InitStructure);
-    
+
 #if 0
   	/* Configure CAN pin: RX */
   	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   	GPIO_Init(GPIOD, &GPIO_InitStructure);
-  
+
   	/* Configure CAN pin: TX */
   	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	GPIO_PinRemapConfig(GPIO_Remap2_CAN1, ENABLE );	   //重影射CAN IO脚到 PD0，PD1
-#endif
+
   	/* Configure CAN pin: RX */
   	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   	GPIO_Init(GPIOA, &GPIO_InitStructure);
-  
+
   	/* Configure CAN pin: TX */
   	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	//GPIO_PinRemapConfig(GPIO_Remap2_CAN1, ENABLE );	   //重影射CAN IO脚到 PD0，PD1
+	GPIO_PinRemapConfig(GPIO_Remap2_CAN1, ENABLE );	   //重影射CAN IO脚到 PD0，PD1
+#endif
+
+      	/* Configure CAN pin: RX */
+  	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+  	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+  	/* Configure CAN pin: TX */
+  	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  	GPIO_Init(GPIOA, &GPIO_InitStructure);
+    //GPIO_PinRemapConfig(GPIO_Remap2_CAN1, ENABLE );	   //重影射CAN IO脚到 PB8，PB9,    如果是使用PA12发送，PA11则不需要重映射
 }
 
 //系统中断管理
 void NVIC_Configuration(void)
-{ 
+{
 	NVIC_InitTypeDef NVIC_InitStructure;
 
-  	/* Configure the NVIC Preemption Priority Bits */  
+  	/* Configure the NVIC Preemption Priority Bits */
   	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
 
-	#ifdef  VECT_TAB_RAM  
-	  /* Set the Vector Table base location at 0x20000000 */ 
-	  NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
+	#ifdef  VECT_TAB_RAM
+	  /* Set the Vector Table base location at 0x20000000 */
+	  NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0);
 	#else  /* VECT_TAB_FLASH  */
-	  /* Set the Vector Table base location at 0x08000000 */ 
-	  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);   
+	  /* Set the Vector Table base location at 0x08000000 */
+	  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
 	#endif
 
 	/* enabling interrupt */
@@ -81,22 +94,22 @@ void NVIC_Configuration(void)
 //配置系统时钟,使能各外设时钟
 void RCC_Configuration(void)
 {
-	SystemInit();	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA 
+	SystemInit();
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA
                            |RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC
                            |RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE
-						   |RCC_APB2Periph_ADC1  | RCC_APB2Periph_AFIO 
+						   |RCC_APB2Periph_ADC1  | RCC_APB2Periph_AFIO
                            |RCC_APB2Periph_SPI1, ENABLE );
   //RCC_APB2PeriphClockCmd(RCC_APB2Periph_ALL ,ENABLE );
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4 
-                           |RCC_APB1Periph_USART3|RCC_APB1Periph_TIM2	                           
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4
+                           |RCC_APB1Periph_USART3|RCC_APB1Periph_TIM2
                            , ENABLE );
 	//RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 	/* CAN Periph clock enable */
   	RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
 }
 
-void InitDis(void) 
+void InitDis(void)
 {
    /* LCD Module init */
    GLCD_init();
@@ -110,7 +123,7 @@ void InitDis(void)
 //配置所有外设
 void Init_All_Periph(void)
 {
-	RCC_Configuration();	
+	RCC_Configuration();
 //	InitDis();
 //	GLCD_Test();
 	GPIO_Configuration();
@@ -118,14 +131,13 @@ void Init_All_Periph(void)
 }
 
 int main(void)
-{  
+{
     int i  = 0;
 	Init_All_Periph();
 
-	/* CAN transmit at 100Kb/s and receive by polling in loopback mode*/
-  	//TestRx = CAN_Polling();
+
     //GPIO_SetBits (GPIOD, GPIO_Pin_0);
-    
+
     GPIO_SetBits (GPIOE, GPIO_Pin_0);
     GPIO_SetBits (GPIOE, GPIO_Pin_1);
     GPIO_SetBits (GPIOE, GPIO_Pin_2);
@@ -133,24 +145,26 @@ int main(void)
 
     GPIO_ResetBits (GPIOD, GPIO_Pin_2);
 
-//  	if (TestRx == FAILED)
-//  	{
-//    	/* Turn on led connected to PD.04 pin (LD3) */
-//    	GPIO_SetBits(GPIOD, GPIO_Pin_4);
-//  	}
-//  	else
-//  	{
-//    	/* Turn on led connected to PD.02 pin (LD1) */
-//   	 GPIO_SetBits(GPIOD, GPIO_Pin_2);
-//  	}
+/* CAN transmit at 100Kb/s and receive by polling in loopback mode*/
+  	TestRx = CAN_Polling();
+  	if (TestRx == FAILED)
+  	{
+    	/* Turn on led connected to PD.04 pin (LD3) */
+    	GPIO_SetBits(GPIOD, GPIO_Pin_4);
+  	}
+  	else
+  	{
+    	/* Turn on led connected to PD.02 pin (LD1) */
+   	 GPIO_SetBits(GPIOD, GPIO_Pin_2);
+  	}
 
   	/* CAN transmit at 500Kb/s and receive by interrupt in loopback mode*/
-  	TestRx = CAN_Interrupt();
+  	//TestRx = CAN_Interrupt();
 
 //  	if (TestRx == FAILED)
 //  	{
 //   	 	/* Turn on led connected to PD.07 pin (LD4) */
-//    	GPIO_SetBits(GPIOD, GPIO_Pin_7); 
+//    	GPIO_SetBits(GPIOD, GPIO_Pin_7);
 //  	}
 //  	else
 //  	{
@@ -161,10 +175,10 @@ int main(void)
 
  	while(1)
   	{
-        // CAN_Interrupt();
-        // CAN_ITConfig(CAN1,CAN_IT_FMP0, ENABLE);
+        //CAN_Interrupt();
+        //CAN_ITConfig(CAN1,CAN_IT_FMP0, ENABLE);
         MyCANTransmit ();
-        for (i = 100000; i > 0; i--)
+        for (i = 10000000; i > 0; i--)
         ;
   	}
 }
@@ -172,7 +186,7 @@ int main(void)
 
 
 void MyCANTransmit (void)
-{  
+{
     u32 i = 0;
     u8 TransmitMailbox;
     CanTxMsg TxMessage;
@@ -181,9 +195,9 @@ void MyCANTransmit (void)
 
 
     /* transmit */
-    
+
     TxMessage.StdId = 0x00;
-    TxMessage.ExtId = 0x7800;
+    TxMessage.ExtId = 0x0d0a;
     TxMessage.RTR = CAN_RTR_DATA;
     TxMessage.IDE = CAN_ID_EXT;;
     TxMessage.DLC = 8;
@@ -234,11 +248,11 @@ TestStatus CAN_Polling(void)
   CAN_InitStructure.CAN_NART=DISABLE;
   CAN_InitStructure.CAN_RFLM=DISABLE;
   CAN_InitStructure.CAN_TXFP=DISABLE;
-  CAN_InitStructure.CAN_Mode=CAN_Mode_Normal;
+  CAN_InitStructure.CAN_Mode=CAN_Mode_LoopBack;
   CAN_InitStructure.CAN_SJW=CAN_SJW_1tq;
-  CAN_InitStructure.CAN_BS1=CAN_BS1_7tq;
-  CAN_InitStructure.CAN_BS2=CAN_BS2_6tq;
-  CAN_InitStructure.CAN_Prescaler=5;
+  CAN_InitStructure.CAN_BS1=CAN_BS1_6tq;
+  CAN_InitStructure.CAN_BS2=CAN_BS2_5tq;
+  CAN_InitStructure.CAN_Prescaler=6;
   CAN_Init(CAN1,&CAN_InitStructure);
 
   /* CAN filter init */
@@ -258,7 +272,7 @@ TestStatus CAN_Polling(void)
 #if 0 //  aiwesky 20140504
   /* receive */
   RxMessage.StdId=0x00;
-  RxMessage.IDE=CAN_ID_STD;
+  RxMessage.IDE=CAN_ID_EXT;
   RxMessage.DLC=0;
   RxMessage.Data[0]=0x00;
   RxMessage.Data[1]=0x00;
@@ -271,7 +285,7 @@ TestStatus CAN_Polling(void)
   if (RxMessage.DLC!=2) return FAILED;
 
   if ((RxMessage.Data[0]<<8|RxMessage.Data[1])!=0xCAFE) return FAILED;
-#endif  
+#endif
   //return !PASSED; /* Test Passed */
 
 }
@@ -303,8 +317,8 @@ TestStatus CAN_Interrupt(void)
   CAN_InitStructure.CAN_TXFP=DISABLE;
   CAN_InitStructure.CAN_Mode=CAN_Mode_Normal;
   CAN_InitStructure.CAN_SJW=CAN_SJW_1tq;
-  CAN_InitStructure.CAN_BS1=CAN_BS1_8tq;
-  CAN_InitStructure.CAN_BS2=CAN_BS2_7tq;
+  CAN_InitStructure.CAN_BS1=CAN_BS1_6tq;
+  CAN_InitStructure.CAN_BS2=CAN_BS2_5tq;
   CAN_InitStructure.CAN_Prescaler=5;
   CAN_Init(CAN1,&CAN_InitStructure);
 
@@ -320,14 +334,14 @@ TestStatus CAN_Interrupt(void)
   CAN_FilterInitStructure.CAN_FilterActivation=ENABLE;
   CAN_FilterInit(&CAN_FilterInitStructure);
 
-  /* CAN FIFO0 message pending interrupt enable */ 
+  /* CAN FIFO0 message pending interrupt enable */
   CAN_ITConfig(CAN1,CAN_IT_FMP0, ENABLE);
 
 
 #if 1
   /* transmit 1 message */
   TxMessage.StdId=0x00;
-  TxMessage.ExtId=0xF00;
+  TxMessage.ExtId=0x7800;
   TxMessage.IDE=CAN_ID_EXT;
   TxMessage.RTR=CAN_RTR_DATA;
   TxMessage.DLC=2;
@@ -337,29 +351,30 @@ TestStatus CAN_Interrupt(void)
 
   /* initialize the value that will be returned */
   ret = 0xFF;
-       
+
   /* receive message with interrupt handling */
   i=0;
   while((ret == 0xFF) && (i < 0xFFF))
   {
     i++;
   }
-  
+
   if (i == 0xFFF)
   {
-    ret=0;  
+    ret=0;
   }
 
   /* disable interrupt handling */
   // aiwesky 20140503
   CAN_ITConfig(CAN1,CAN_IT_FMP0, DISABLE);
+  //CAN_ITConfig(CAN1,CAN_IT_FMP0, ENABLE);
 #endif // aiwesky 20140506
   return (TestStatus)ret;
 }
 
 /*******************************************************************************
 * Function Name  : USB_LP_CAN_RX0_IRQHandler
-* Description    : This function handles USB Low Priority or CAN RX0 interrupts 
+* Description    : This function handles USB Low Priority or CAN RX0 interrupts
 *                  requests.
 * Input          : None
 * Output         : None
@@ -368,9 +383,9 @@ TestStatus CAN_Interrupt(void)
 void CAN1_RX0_IRQHandler(void)
 {
     CanRxMsg RxMessage;
-    
+
     MyCANTransmit ();
-    
+
     RxMessage.StdId=0x00;
     RxMessage.ExtId=0x00;
     RxMessage.IDE=0;
@@ -384,11 +399,11 @@ void CAN1_RX0_IRQHandler(void)
     if((RxMessage.ExtId == 0x7800) && (RxMessage.IDE == CAN_ID_EXT)
      && (RxMessage.DLC ==2 ) && ((RxMessage.Data[1] | RxMessage.Data[0]<<8) == 0xDECA))
     {
-        ret = 1; 
-        GPIO_ResetBits (GPIOC, GPIO_Pin_1);
+        ret = 1;
+        GPIO_SetBits (GPIOD, GPIO_Pin_8);
     }
     else
     {
-        ret = 0; 
+        ret = 0;
     }
 }
